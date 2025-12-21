@@ -23,7 +23,6 @@ export default async function handler(req, res) {
     form.set("cancel_url", `${baseUrl}/`);
 
     // Apple Pay / Google Pay / cards (Stripe decides what to show)
-    form.set("automatic_payment_methods[enabled]", "true");
     form.set("phone_number_collection[enabled]", "true");
 
     // Line item 1: Parking
