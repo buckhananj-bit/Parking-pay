@@ -103,6 +103,36 @@
     rateA.addEventListener("click", ()=>setActive(rateA));
     rateB.addEventListener("click", ()=>setActive(rateB));
     setActive(rateA);
+    document.getElementById("payBtn").addEventListener("click", async () => {
+  const plate = document.getElementById("plate").value.trim();
+  const region = document.getElementById("region").value;
+  const phone = document.getElementById("phone").value.trim();
+  const rate = rateB.classList.contains("active") ? "ALL_DAY" : "OVERNIGHT";
+
+  if (!plate) {
+    alert("License plate is required.");
+    return;
+  }
+
+  const btn = document.getElementById("payBtn");
+  btn.disabled = true;
+  btn.textContent = "Starting checkout…";
+
+  try {
+    const r = await fetch("/api/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ rate, licensePlate: plate, region, phone })
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data?.error || "Checkout failed");
+    window.location.href = data.url;
+  } catch (e) {
+    alert(e.message);
+    btn.disabled = false;
+    btn.textContent = "Pay";
+  }
+});
   </script>
 </body>
 </html>
