@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lot #88 Parking Payment</title>
+  <style>
+    :root{--border:#dcdcdc;--muted:#666;--accent:#1a73e8;}
+    *{box-sizing:border-box}
+    body{margin:0;background:#f6f7f8;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
+    .wrap{max-width:720px;margin:0 auto;padding:16px}
+    .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin:12px 0}
+    h1{margin:0 0 6px;font-size:22px}
+    .sub{color:var(--muted);font-size:14px}
+    .label{display:block;margin:14px 0 6px;font-weight:700}
+    input,select{width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;font-size:16px}
+    .rate{border:2px solid var(--border);border-radius:12px;padding:14px;display:flex;justify-content:space-between;cursor:pointer}
+    .rate.active{border-color:var(--accent)}
+    .rate .t{font-weight:900}
+    .rate .p{font-weight:900;font-size:18px}
+    .row{display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid var(--border)}
+    .row:first-child{border-top:none}
+    .total{display:flex;justify-content:space-between;font-weight:900;font-size:18px;padding:12px 0;border-top:1px solid var(--border)}
+    button{width:100%;margin-top:14px;padding:14px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-weight:900;font-size:16px}
+    .hint{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.4}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="sub">Parking Payment</div>
+      <h1>Lot #88</h1>
+      <div class="sub">120 5th Ave S, Seattle, WA</div>
+    </div>
+
+    <div class="card">
+      <div class="label" style="margin-top:0">Confirm your rate</div>
+
+      <div id="rateA" class="rate active" data-price="12.50">
+        <div>
+          <div class="t">Overnight</div>
+          <div class="sub">Select this option for overnight parking</div>
+        </div>
+        <div class="p">$12.50</div>
+      </div>
+
+      <div style="height:10px"></div>
+
+      <div id="rateB" class="rate" data-price="24.99">
+        <div>
+          <div class="t">All Day</div>
+          <div class="sub">Select this option for all day parking</div>
+        </div>
+        <div class="p">$24.99</div>
+      </div>
+
+      <label class="label">License plate number (required)</label>
+      <input id="plate" placeholder="ABC123" />
+
+      <label class="label">State / Province (optional)</label>
+      <select id="region">
+        <option value="">Select…</option>
+        <option value="WA">WA</option>
+        <option value="OR">OR</option>
+        <option value="CA">CA</option>
+      </select>
+
+      <label class="label">Phone (optional)</label>
+      <input id="phone" placeholder="(###) ###-####" inputmode="tel" />
+    </div>
+
+    <div class="card">
+      <div class="label" style="margin-top:0">Payment Summary</div>
+
+      <div class="row"><div>Subtotal</div><div id="subtotal">$12.50</div></div>
+      <div class="row"><div>Service Fee</div><div id="fee">$0.35</div></div>
+      <div class="total"><div>Order Total</div><div id="total">$12.85</div></div>
+
+      <button onclick="alert('Next step: wire this to Stripe Checkout')">Pay</button>
+      <div class="hint">
+        Next step will connect this button to Stripe Checkout (Apple Pay / Google Pay / card) and save your license plate to the payment.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const fee = 0.35;
+    const rateA = document.getElementById("rateA");
+    const rateB = document.getElementById("rateB");
+    const subtotalEl = document.getElementById("subtotal");
+    const feeEl = document.getElementById("fee");
+    const totalEl = document.getElementById("total");
+
+    function fmt(n){return `$${n.toFixed(2)}`;}
+    function setActive(el){
+      [rateA, rateB].forEach(r=>r.classList.remove("active"));
+      el.classList.add("active");
+      const price = parseFloat(el.dataset.price);
+      subtotalEl.textContent = fmt(price);
+      feeEl.textContent = fmt(fee);
+      totalEl.textContent = fmt(price + fee);
+    }
+    rateA.addEventListener("click", ()=>setActive(rateA));
+    rateB.addEventListener("click", ()=>setActive(rateB));
+    setActive(rateA);
+  </script>
+</body>
+</html>
