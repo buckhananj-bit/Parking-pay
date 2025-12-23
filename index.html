@@ -8,7 +8,6 @@
     :root{--border:#dcdcdc;--muted:#666;--accent:#1a73e8;}
     *{box-sizing:border-box}
     body{margin:0;background:#f6f7f8;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
-    .wrap{max-width:720px;margin:0 auto;padding:16px}
     .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin:12px 0}
     h1{margin:0 0 6px;font-size:22px}
     .sub{color:var(--muted);font-size:14px}
@@ -26,225 +25,128 @@
   </style>
 </head>
 <body>
+
+  <!-- Header image card -->
   <div class="card" style="padding:0; overflow:hidden">
-  <img
-    src="IMG_2341.jpeg"
-    alt="Parking location"
-    style="width:100%; height:180px; object-fit:cover;"
-  />
-  <div style="padding:16px">
-    <div class="sub">Parking Payment</div>
-    <h1>Lot #88</h1>
-    <div class="sub">120 5th Ave S, Seattle, WA</div>
-  </div>
-</div>
-
-    <div class="card">
-      <div class="label" style="margin-top:0">Confirm your rate</div>
-
-      <div id="rateA" class="rate active" data-price="12.50">
-        <div>
-          <div class="t">Overnight</div>
-          <div class="sub">Select this option for overnight parking</div>
-        </div>
-        <div class="p">$12.50</div>
-      </div>
-
-      <div style="height:10px"></div>
-
-      <div id="rateB" class="rate" data-price="24.99">
-        <div>
-          <div class="t">All Day</div>
-          <div class="sub">Select this option for all day parking</div>
-        </div>
-        <div class="p">$24.99</div>
-      </div>
-      <div
-  id="longerLink"
-  style="margin-top:12px; color:#1a73e8; font-weight:700; cursor:pointer;"
->
-  Need to stay longer? Choose a later end time
-</div>
-
-<div id="dateTimePicker" style="display:none; margin-top:12px;">
-  <label class="label">End date</label>
-  <input type="date" id="endDate" />
-
-  <label class="label">End time</label>
-  <input type="time" id="endTime" />
-</div>
-<div style="font-weight:900; margin-top:16px;">
-  Enter your license plate
-</div>
-
-<label class="label">License plate number (required)</label>
-<input id="plate" placeholder="ABC123" />
-
-      <label class="label">State / Province (optional)</label>
-      <select id="region">
-        <option value="">Select…</option>
-        <option value="WA">WA</option>
-        <option value="OR">OR</option>
-        <option value="CA">CA</option>
-      </select>
-<div class="card">
-  <div class="label" style="margin-top:0">Payment Summary</div>
-
-  <div class="row"><div>Subtotal</div><div id="subtotal">$12.50</div></div>
-  <div class="row"><div>Service Fee</div><div id="fee">$0.35</div></div>
-
-  <div class="row" id="discountRow" style="display:none;">
-    <div>Discount</div>
-    <div id="discountAmt">-$0.00</div>
-  </div>
-
-  <div style="margin-top:12px;">
-    <label class="label" style="margin-top:0">Discount code (optional)</label>
-    <div style="display:flex; gap:10px;">
-      <input id="discountCode" placeholder="Enter code" style="flex:1;" />
-      <button id="applyDiscountBtn" type="button" style="width:auto; margin-top:0; padding:12px 14px;">Apply</button>
+    <img src="/IMG_2341.jpeg" alt="Parking location" style="width:100%; height:180px; object-fit:cover;" />
+    <div style="padding:16px">
+      <div class="sub">Parking Payment</div>
+      <h1>Lot #88</h1>
+      <div class="sub">120 5th Ave S, Seattle, WA</div>
     </div>
-    <div id="discountMsg" class="hint" style="margin-top:8px;"></div>
   </div>
 
-  <div class="total">
-    <div>Order Total</div>
-    <div id="total">$12.85</div>
-  </div>
+  <!-- Rates + vehicle info -->
+  <div class="card">
+    <div class="label" style="margin-top:0">Confirm your rate</div>
 
-  <!-- Wallet buttons container -->
-  <div style="
-    margin-top:14px;
-    padding:14px;
-    background:#1a73e8;
-    border-radius:12px;
-    display:flex;
-    flex-direction:column;
-    gap:10px;
-  ">
-    <button
-      id="applePayBtn"
-      type="button"
-      style="
-        width:100%;
-        padding:14px;
-        border:none;
-        border-radius:10px;
-        background:#0a4dbf;
-        color:#fff;
-        font-weight:900;
-        font-size:16px;
-        margin-top:0;
-      "
-    >
-      Buy with Apple Pay
-    </button>
-
-    <button
-      id="googlePayBtn"
-      type="button"
-      style="
-        width:100%;
-        padding:14px;
-        border:none;
-        border-radius:10px;
-        background:#0a4dbf;
-        color:#fff;
-        font-weight:900;
-        font-size:16px;
-        margin-top:0;
-      "
-    >
-      Buy with Google Pay
-    </button>
-  </div>
-
-  <div style="text-align:center; color:#666; font-size:12px; margin-top:10px;">
-    Continue to pay with credit card
-  </div>
-
-  <button id="payBtn">Pay</button>
-
-  <div class="hint">
-    Next step will connect this button to Stripe Checkout (Apple Pay / Google Pay / card) and save your license plate to the payment.
-  </div>
-</div>
-      <label class="label">Phone (optional)</label>
-      <input id="phone" placeholder="(###) ###-####" inputmode="tel" />
+    <div id="rateA" class="rate active" data-price="12.50">
+      <div>
+        <div class="t">Overnight</div>
+        <div class="sub">Select this option for overnight parking</div>
+      </div>
+      <div class="p">$12.50</div>
     </div>
-    <div class="card">
-      <div class="label" style="margin-top:0">Payment Summary</div>
 
-      <div class="row"><div>Subtotal</div><div id="subtotal">$12.50</div></div>
-      <div class="row"><div>Service Fee</div><div id="fee">$0.35</div></div>
-      <div class="row" id="discountRow" style="display:none;">
-  <div>Discount</div>
-  <div id="discountAmt">-$0.00</div>
-</div>
+    <div style="height:10px"></div>
 
-<div style="margin-top:12px;">
-  <label class="label" style="margin-top:0">Discount code (optional)</label>
-  <div style="display:flex; gap:10px;">
-    <input id="discountCode" placeholder="Enter code" style="flex:1;" />
-    <button id="applyDiscountBtn" type="button" style="width:auto; margin-top:0; padding:12px 14px;">Apply</button>
+    <div id="rateB" class="rate" data-price="24.99">
+      <div>
+        <div class="t">All Day</div>
+        <div class="sub">Select this option for all day parking</div>
+      </div>
+      <div class="p">$24.99</div>
+    </div>
+
+    <div id="longerLink" style="margin-top:12px; color:#1a73e8; font-weight:700; cursor:pointer;">
+      Need to stay longer? Choose a later end time
+    </div>
+
+    <div id="dateTimePicker" style="display:none; margin-top:12px;">
+      <label class="label">End date</label>
+      <input type="date" id="endDate" />
+
+      <label class="label">End time</label>
+      <input type="time" id="endTime" />
+    </div>
+
+    <div style="font-weight:900; margin-top:16px;">
+      Enter your license plate
+    </div>
+
+    <label class="label">License plate number (required)</label>
+    <input id="plate" placeholder="ABC123" />
+
+    <label class="label">State / Province (optional)</label>
+    <select id="region">
+      <option value="">Select…</option>
+      <option value="WA">WA</option>
+      <option value="OR">OR</option>
+      <option value="CA">CA</option>
+    </select>
+
+    <label class="label">Phone (optional)</label>
+    <input id="phone" placeholder="(###) ###-####" inputmode="tel" />
   </div>
-  <div id="discountMsg"
-      <div class="total"><div>Order Total</div><div id="total">$12.85</div></div>
-  <!-- Wallet buttons container -->
-<div style="
-  margin-top:14px;
-  padding:14px;
-  background:#1a73e8;
-  border-radius:12px;
-  display:flex;
-  flex-direction:column;
-  gap:10px;
-">
-  <button
-    id="applePayBtn"
-    type="button"
-    style="
-      width:100%;
+
+  <!-- Payment summary -->
+  <div class="card">
+    <div class="label" style="margin-top:0">Payment Summary</div>
+
+    <div class="row"><div>Subtotal</div><div id="subtotal">$12.50</div></div>
+    <div class="row"><div>Service Fee</div><div id="fee">$0.35</div></div>
+
+    <div class="row" id="discountRow" style="display:none;">
+      <div>Discount</div>
+      <div id="discountAmt">-$0.00</div>
+    </div>
+
+    <div style="margin-top:12px;">
+      <label class="label" style="margin-top:0">Discount code (optional)</label>
+      <div style="display:flex; gap:10px;">
+        <input id="discountCode" placeholder="Enter code" style="flex:1;" />
+        <button id="applyDiscountBtn" type="button" style="width:auto; margin-top:0; padding:12px 14px;">Apply</button>
+      </div>
+      <div id="discountMsg" class="hint" style="margin-top:8px;"></div>
+    </div>
+
+    <div class="total">
+      <div>Order Total</div>
+      <div id="total">$12.85</div>
+    </div>
+
+    <!-- Wallet buttons box -->
+    <div style="
+      margin-top:14px;
       padding:14px;
-      border:none;
-      border-radius:10px;
-      background:#0a4dbf;
-      color:#fff;
-      font-weight:900;
-      font-size:16px;
-    "
-  >
-    Buy with Apple Pay
-  </button>
+      background:#1a73e8;
+      border-radius:12px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    ">
+      <button id="applePayBtn" type="button" style="
+        width:100%; padding:14px; border:none; border-radius:10px;
+        background:#0a4dbf; color:#fff; font-weight:900; font-size:16px; margin-top:0;
+      ">Buy with Apple Pay</button>
 
-  <button
-    id="googlePayBtn"
-    type="button"
-    style="
-      width:100%;
-      padding:14px;
-      border:none;
-      border-radius:10px;
-      background:#0a4dbf;
-      color:#fff;
-      font-weight:900;
-      font-size:16px;
-    "
-  >
-    Buy with Google Pay
-  </button>
-</div>
+      <button id="googlePayBtn" type="button" style="
+        width:100%; padding:14px; border:none; border-radius:10px;
+        background:#0a4dbf; color:#fff; font-weight:900; font-size:16px; margin-top:0;
+      ">Buy with Google Pay</button>
+    </div>
 
-<div style="text-align:center; color:#666; font-size:12px; margin-top:10px;">
-  Continue to pay with credit card
-</div>
+    <div style="text-align:center; color:#666; font-size:12px; margin-top:10px;">
+      Continue to pay with credit card
+    </div>
 
-   <button id="payBtn">Pay</button>
-      <div class="hint">
-        Next step will connect this button to Stripe Checkout (Apple Pay / Google Pay / card) and save your license plate to the payment.
-      </div>
+    <button id="payBtn">Pay</button>
+
+    <div class="hint">
+      Next step will connect this button to Stripe Checkout (Apple Pay / Google Pay / card) and save your license plate to the payment.
     </div>
   </div>
+
 <script>
   const fee = 0.35;
   const DAILY_RATE = 24.99;
@@ -255,101 +157,90 @@
   const feeEl = document.getElementById("fee");
   const totalEl = document.getElementById("total");
 
-  // Longer-stay elements (now they exist because you added the HTML)
   const longerLink = document.getElementById("longerLink");
   const picker = document.getElementById("dateTimePicker");
   const endDateInput = document.getElementById("endDate");
   const endTimeInput = document.getElementById("endTime");
 
-  // State for Stripe
   window.selectedCustomDays = null;
   window.appliedDiscountCode = null;
-window.currentSubtotal = 12.50; // will be overwritten by your setTotals calls
-window.currentDiscountAmount = 0;
+  window.currentSubtotal = 12.50;
+  window.currentDiscountAmount = 0;
 
-  function fmt(n) { return `$${n.toFixed(2)}`; 
-  window.currentSubtotal = subtotal;
+  const DISCOUNT_CODES = {
+    "SAVE10": { type: "percent", value: 10 },
+    "FIVEOFF": { type: "fixed", value: 5 },
+    "LOT88VIP": { type: "fixed", value: 12.50 }
+  };
 
-  // discount amount comes from code validation (client-side display)
-  const discountAmount = Number(window.currentDiscountAmount || 0);
+  function fmt(n){ return `$${n.toFixed(2)}`; }
 
-  const discountedSubtotal = Math.max(0, subtotal - discountAmount);
+  function setTotals(subtotal) {
+    window.currentSubtotal = subtotal;
 
-  subtotalEl.textContent = fmt(discountedSubtotal);
-  feeEl.textContent = fmt(fee);
-  totalEl.textContent = fmt(discountedSubtotal + fee);
+    const discountAmount = Number(window.currentDiscountAmount || 0);
+    const discountedSubtotal = Math.max(0, subtotal - discountAmount);
 
-  // show/hide discount row
-  const discountRow = document.getElementById("discountRow");
-  const discountAmtEl = document.getElementById("discountAmt");
-  if (discountAmount > 0) {
-    discountRow.style.display = "flex";
-    discountAmtEl.textContent = `-${fmt(discountAmount)}`;
-  } else {
-    discountRow.style.display = "none";
+    subtotalEl.textContent = fmt(discountedSubtotal);
+    feeEl.textContent = fmt(fee);
+    totalEl.textContent = fmt(discountedSubtotal + fee);
+
+    const discountRow = document.getElementById("discountRow");
+    const discountAmtEl = document.getElementById("discountAmt");
+    if (discountAmount > 0) {
+      discountRow.style.display = "flex";
+      discountAmtEl.textContent = `-${fmt(discountAmount)}`;
+    } else {
+      discountRow.style.display = "none";
+    }
   }
-}
 
-  function setActive(el) {
-    // If user clicks a fixed rate, clear custom days and hide the picker (optional but clean)
+  function setActive(el){
     window.selectedCustomDays = null;
     picker.style.display = "none";
 
-    [rateA, rateB].forEach(r => r.classList.remove("active"));
+    [rateA, rateB].forEach(r=>r.classList.remove("active"));
     el.classList.add("active");
 
     const price = parseFloat(el.dataset.price);
     setTotals(price);
   }
 
-  // Default selection
-  rateA.addEventListener("click", () => setActive(rateA));
-  rateB.addEventListener("click", () => setActive(rateB));
+  rateA.addEventListener("click", ()=>setActive(rateA));
+  rateB.addEventListener("click", ()=>setActive(rateB));
   setActive(rateA);
-  const DISCOUNT_CODES = {
-  // You can change these later
-  "SAVE10": { type: "percent", value: 10 },   // 10% off
-  "FIVEOFF": { type: "fixed", value: 5 },     // $5 off
-  "LOT88VIP": { type: "fixed", value: 12.50 } // makes overnight free
-};
 
-function computeDiscount(subtotal, code) {
-  if (!code) return 0;
-  const c = DISCOUNT_CODES[String(code).trim().toUpperCase()];
-  if (!c) return null;
-
-  if (c.type === "percent") return subtotal * (c.value / 100);
-  if (c.type === "fixed") return c.value;
-  return 0;
-}
-
-document.getElementById("applyDiscountBtn").addEventListener("click", () => {
-  const code = document.getElementById("discountCode").value.trim().toUpperCase();
-  const msg = document.getElementById("discountMsg");
-
-  const disc = computeDiscount(window.currentSubtotal, code);
-
-  if (disc === null) {
-    window.appliedDiscountCode = null;
-    window.currentDiscountAmount = 0;
-    msg.textContent = "Invalid discount code.";
-    setTotals(window.currentSubtotal);
-    return;
+  function computeDiscount(subtotal, code) {
+    if (!code) return 0;
+    const c = DISCOUNT_CODES[String(code).trim().toUpperCase()];
+    if (!c) return null;
+    if (c.type === "percent") return subtotal * (c.value / 100);
+    if (c.type === "fixed") return c.value;
+    return 0;
   }
 
-  window.appliedDiscountCode = code;
-  window.currentDiscountAmount = disc;
+  document.getElementById("applyDiscountBtn").addEventListener("click", () => {
+    const code = document.getElementById("discountCode").value.trim().toUpperCase();
+    const msg = document.getElementById("discountMsg");
 
-  msg.textContent = `Discount applied: ${code}`;
-  setTotals(window.currentSubtotal);
-});
+    const disc = computeDiscount(window.currentSubtotal, code);
+    if (disc === null) {
+      window.appliedDiscountCode = null;
+      window.currentDiscountAmount = 0;
+      msg.textContent = "Invalid discount code.";
+      setTotals(window.currentSubtotal);
+      return;
+    }
 
-  // Show picker
-  longerLink.addEventListener("click", () => {
-    picker.style.display = "block";
+    window.appliedDiscountCode = code;
+    window.currentDiscountAmount = disc;
+    msg.textContent = code ? `Discount applied: ${code}` : "";
+    setTotals(window.currentSubtotal);
   });
 
-  function calculateDaysAndPrice() {
+  longerLink.addEventListener("click", ()=>{ picker.style.display = "block"; });
+
+  function calculateDaysAndPrice(){
     if (!endDateInput.value || !endTimeInput.value) return;
 
     const now = new Date();
@@ -361,65 +252,21 @@ document.getElementById("applyDiscountBtn").addEventListener("click", () => {
     }
 
     const msPerDay = 1000 * 60 * 60 * 24;
-    const diffMs = end - now;
-
-    // Round UP to full days
-    const days = Math.max(1, Math.ceil(diffMs / msPerDay));
+    const days = Math.max(1, Math.ceil((end - now) / msPerDay));
     const price = days * DAILY_RATE;
 
-    // Mark both rate boxes as not selected (optional)
-    [rateA, rateB].forEach(r => r.classList.remove("active"));
-
-    // Save for Stripe + update UI
+    [rateA, rateB].forEach(r=>r.classList.remove("active"));
     window.selectedCustomDays = days;
     setTotals(price);
   }
-async function startCheckout() {
-  const plate = document.getElementById("plate").value.trim();
-  const region = document.getElementById("region").value;
-  const phone = document.getElementById("phone").value.trim();
-  const rate = rateB.classList.contains("active") ? "ALL_DAY" : "OVERNIGHT";
 
-  if (!plate) {
-    alert("License plate is required.");
-    return;
-  }
-
-  const r = await fetch("/api/create-checkout-session", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      rate,
-      licensePlate: plate,
-      region,
-      phone,
-      customDays: window.selectedCustomDays || null,
-      discountCode: window.appliedDiscountCode || null
-    })
-  });
-
-  const data = await r.json();
-  if (!r.ok) throw new Error(data?.error || "Checkout failed");
-  window.location.href = data.url;
-}document.getElementById("applePayBtn").addEventListener("click", () => startCheckout().catch(e => alert(e.message)));
-document.getElementById("googlePayBtn").addEventListener("click", () => startCheckout().catch(e => alert(e.message)));
   endDateInput.addEventListener("change", calculateDaysAndPrice);
   endTimeInput.addEventListener("change", calculateDaysAndPrice);
 
-  // PAY button -> Stripe Checkout
-  document.getElementById("payBtn").addEventListener("click", async () => {
-  const btn = document.getElementById("payBtn");
-  btn.disabled = true;
-  btn.textContent = "Starting checkout…";
-  try {
-    await startCheckout();
-  } catch (e) {
-    alert(e.message);
-    btn.disabled = false;
-    btn.textContent = "Pay";
-  }
-});on
-    // If no custom days, use the selected fixed rate
+  async function startCheckout() {
+    const plate = document.getElementById("plate").value.trim();
+    const region = document.getElementById("region").value;
+    const phone = document.getElementById("phone").value.trim();
     const rate = rateB.classList.contains("active") ? "ALL_DAY" : "OVERNIGHT";
 
     if (!plate) {
@@ -427,26 +274,38 @@ document.getElementById("googlePayBtn").addEventListener("click", () => startChe
       return;
     }
 
+    const r = await fetch("/api/create-checkout-session", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        rate,
+        licensePlate: plate,
+        region,
+        phone,
+        customDays: window.selectedCustomDays || null,
+        discountCode: window.appliedDiscountCode || null
+      })
+    });
+
+    const data = await r.json();
+    if (!r.ok) throw new Error(data?.error || "Checkout failed");
+    window.location.href = data.url;
+  }
+
+  document.getElementById("applePayBtn").addEventListener("click", () => {
+    startCheckout().catch(e => alert(e.message));
+  });
+
+  document.getElementById("googlePayBtn").addEventListener("click", () => {
+    startCheckout().catch(e => alert(e.message));
+  });
+
+  document.getElementById("payBtn").addEventListener("click", async () => {
     const btn = document.getElementById("payBtn");
     btn.disabled = true;
     btn.textContent = "Starting checkout…";
-
     try {
-      const r = await fetch("/api/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          rate,
-          licensePlate: plate,
-          region,
-          phone,
-          customDays: window.selectedCustomDays || null
-        })
-      });
-
-      const data = await r.json();
-      if (!r.ok) throw new Error(data?.error || "Checkout failed");
-      window.location.href = data.url;
+      await startCheckout();
     } catch (e) {
       alert(e.message);
       btn.disabled = false;
@@ -455,7 +314,5 @@ document.getElementById("googlePayBtn").addEventListener("click", () => startChe
   });
 </script>
 
-    
-  
 </body>
 </html>
