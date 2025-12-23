@@ -12,7 +12,21 @@ export default async function handler(req, res) {
     const ALL_DAY = 24.99;
 
     const DAILY_RATE = 24.99;
+const DISCOUNT_CODES = {
+  SAVE10: { type: "percent", value: 10 },
+  FIVEOFF: { type: "fixed", value: 5 },
+  LOT88VIP: { type: "fixed", value: 12.50 }
+};
 
+function discountAmountFor(subtotal, code) {
+  if (!code) return 0;
+  const c = DISCOUNT_CODES[String(code).trim().toUpperCase()];
+  if (!c) return 0;
+
+  if (c.type === "percent") return subtotal * (c.value / 100);
+  if (c.type === "fixed") return c.value;
+  return 0;
+}
 let subtotal;
 if (req.body.customDays) {
   const days = Math.max(1, Math.ceil(Number(req.body.customDays)));
@@ -24,11 +38,14 @@ if (req.body.customDays) {
     const proto = req.headers["x-forwarded-proto"] || "https";
     const host = req.headers.host;
     const baseUrl = `${proto}://${host}`;
-
+const code = req.body.discountCode ? String(req.body.discountCode).trim().toUpperCase() : "";
+const discountAmount = discountAmountFor(subtotal, code);
+const discountedSubtotal = Math.max(0, subtotal - discountAmount);
     const form = new URLSearchParams();
     form.set("mode", "payment");
     form.set("success_url", `${baseUrl}/success.html`);
     form.set("cancel_url", `${baseUrl}/`);
+    form.set("line_items[0][price_data][unit_amount]", String(Math.round(discountedSubtotal * 100)));
 
     // Apple Pay / Google Pay / cards (Stripe decides what to show)
     form.set("phone_number_collection[enabled]", "true");
@@ -46,6 +63,8 @@ if (req.body.customDays) {
     form.set("line_items[1][price_data][unit_amount]", String(Math.round(SERVICE_FEE * 100)));
 
     // Saved with the payment (so you can see plate + lot in Stripe)
+    form.set("metadata[discount_code]", code || "");
+form.set("metadata[discount_amount]", discountAmount ? discountAmount.toFixed(2) : "0.00");
     form.set("metadata[lot_number]", "Lot #88");
     form.set("metadata[address]", "120 5th Ave S, Seattle, WA");
     form.set("metadata[rate]", rate === "ALL_DAY" ? "All Day" : "Overnight");
