@@ -1,1 +1,123 @@
 
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Payment Confirmed</title>
+  <style>
+    :root{--border:#dcdcdc;--muted:#666;--accent:#1a73e8;}
+    *{box-sizing:border-box}
+    body{margin:0;background:#f6f7f8;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
+    .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin:12px 0}
+    h1{margin:0 0 8px;font-size:22px}
+    .sub{color:var(--muted);font-size:14px}
+    .row{display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid var(--border)}
+    .row:first-child{border-top:none}
+    .total{display:flex;justify-content:space-between;font-weight:900;font-size:18px;padding:12px 0;border-top:1px solid var(--border)}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;font-weight:800;font-size:12px;background:#e8f0fe;color:#174ea6}
+    a.btn{display:block;text-align:center;text-decoration:none;margin-top:14px;padding:14px;border-radius:12px;background:var(--accent);color:#fff;font-weight:900}
+    .muted{color:var(--muted)}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Payment confirmed</h1>
+    <div class="sub">Your parking payment went through successfully.</div>
+    <div id="status" style="margin-top:10px;"></div>
+  </div>
+
+  <div class="card" id="receiptCard" style="display:none;">
+    <div class="sub">Receipt</div>
+    <div style="font-weight:900;font-size:18px;margin-top:6px;" id="lotLine"></div>
+    <div class="sub" id="addrLine" style="margin-top:4px;"></div>
+
+    <div class="row"><div>License Plate</div><div id="plate"></div></div>
+    <div class="row"><div>Rate</div><div id="rate"></div></div>
+    <div class="row"><div>Days</div><div id="days"></div></div>
+    <div class="row"><div>Discount Code</div><div id="discCode"></div></div>
+    <div class="row"><div>Discount</div><div id="discAmt"></div></div>
+
+    <div id="items"></div>
+
+    <div class="total"><div>Total Paid</div><div id="totalPaid"></div></div>
+
+    <div class="sub" style="margin-top:10px;">
+      Session ID: <span class="muted" id="sid"></span>
+    </div>
+
+    <a class="btn" href="/">Back to payment page</a>
+  </div>
+
+  <div class="card" id="errorCard" style="display:none;">
+    <div style="font-weight:900;">Couldn’t load receipt details</div>
+    <div class="sub" id="errMsg" style="margin-top:6px;"></div>
+    <a class="btn" href="/">Back to payment page</a>
+  </div>
+
+<script>
+  function fmtUSD(cents){
+    if (cents == null) return "";
+    return `$${(Number(cents)/100).toFixed(2)}`;
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const sessionId = params.get("session_id");
+
+  const statusEl = document.getElementById("status");
+  const receiptCard = document.getElementById("receiptCard");
+  const errorCard = document.getElementById("errorCard");
+
+  if (!sessionId) {
+    errorCard.style.display = "block";
+    document.getElementById("errMsg").textContent = "Missing session_id in the URL.";
+  } else {
+    statusEl.innerHTML = `<span class="pill">Loading receipt…</span>`;
+
+    fetch(`/api/get-session?session_id=${encodeURIComponent(sessionId)}`)
+      .then(r => r.json().then(data => ({ ok: r.ok, data })))
+      .then(({ ok, data }) => {
+        if (!ok) throw new Error(data?.error || "Failed to load receipt.");
+
+        statusEl.innerHTML = `<span class="pill">Paid</span>`;
+
+        const md = data.metadata || {};
+        document.getElementById("lotLine").textContent = md.lot_number ? `${md.lot_number} Parking` : "Parking";
+        document.getElementById("addrLine").textContent = md.address || "";
+
+        document.getElementById("plate").textContent = md.license_plate || "";
+        document.getElementById("rate").textContent = md.rate || "";
+        document.getElementById("days").textContent = md.days ? String(md.days) : "-";
+        document.getElementById("discCode").textContent = md.discount_code || "-";
+        document.getElementById("discAmt").textContent = md.discount_amount && md.discount_amount !== "0.00"
+          ? `-$${Number(md.discount_amount).toFixed(2)}`
+          : "-";
+
+        // Line items breakdown (optional)
+        const itemsWrap = document.getElementById("items");
+        itemsWrap.innerHTML = "";
+        if (Array.isArray(data.line_items) && data.line_items.length) {
+          data.line_items.forEach((it) => {
+            const name = it.description || it.price?.product || "Item";
+            const amt = it.amount_total != null ? it.amount_total : (it.amount_subtotal || 0);
+            const row = document.createElement("div");
+            row.className = "row";
+            row.innerHTML = `<div>${name}</div><div>${fmtUSD(amt)}</div>`;
+            itemsWrap.appendChild(row);
+          });
+        }
+
+        document.getElementById("totalPaid").textContent = fmtUSD(data.amount_total);
+        document.getElementById("sid").textContent = data.id;
+
+        receiptCard.style.display = "block";
+      })
+      .catch((e) => {
+        statusEl.innerHTML = "";
+        errorCard.style.display = "block";
+        document.getElementById("errMsg").textContent = e.message;
+      });
+  }
+</script>
+</body>
+</html>
