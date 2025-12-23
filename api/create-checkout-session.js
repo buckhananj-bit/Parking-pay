@@ -45,7 +45,6 @@ const discountedSubtotal = Math.max(0, subtotal - discountAmount);
     form.set("mode", "payment");
     form.set("success_url", `${baseUrl}/success.html`);
     form.set("cancel_url", `${baseUrl}/`);
-    form.set("line_items[0][price_data][unit_amount]", String(Math.round(discountedSubtotal * 100)));
 
     // Apple Pay / Google Pay / cards (Stripe decides what to show)
     form.set("phone_number_collection[enabled]", "true");
@@ -54,7 +53,7 @@ const discountedSubtotal = Math.max(0, subtotal - discountAmount);
     form.set("line_items[0][quantity]", "1");
     form.set("line_items[0][price_data][currency]", "usd");
     form.set("line_items[0][price_data][product_data][name]", "Parking - Lot #88");
-    form.set("line_items[0][price_data][unit_amount]", String(Math.round(subtotal * 100)));
+    form.set("line_items[0][price_data][unit_amount]", String(Math.round(discountedSubtotal * 100)));
 
     // Line item 2: Service Fee
     form.set("line_items[1][quantity]", "1");
