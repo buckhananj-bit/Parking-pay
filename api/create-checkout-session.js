@@ -49,7 +49,7 @@ export default async function handler(req, res) {
     form.set("metadata[license_plate]", plate);
     form.set("metadata[state_province]", region ? String(region).trim() : "");
     form.set("metadata[phone_from_form]", phone ? String(phone).trim() : "");
-
+form.set("metadata[days]", req.body.customDays || "");
     const stripeRes = await fetch("https://api.stripe.com/v1/checkout/sessions", {
       method: "POST",
       headers: {
