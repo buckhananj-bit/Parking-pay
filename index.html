@@ -141,7 +141,45 @@
     btn.disabled = false;
     btn.textContent = "Pay";
   }
+});const DAILY_RATE = 24.99;
+
+const longerLink = document.getElementById("longerLink");
+const picker = document.getElementById("dateTimePicker");
+const endDateInput = document.getElementById("endDate");
+const endTimeInput = document.getElementById("endTime");
+
+longerLink.addEventListener("click", () => {
+  picker.style.display = "block";
 });
+
+// Assume “now” is the start time
+function calculateDaysAndPrice() {
+  if (!endDateInput.value || !endTimeInput.value) return;
+
+  const now = new Date();
+  const end = new Date(`${endDateInput.value}T${endTimeInput.value}`);
+
+  if (end <= now) return;
+
+  const msPerDay = 1000 * 60 * 60 * 24;
+  const diffMs = end - now;
+
+  // ROUND UP to full days
+  const days = Math.ceil(diffMs / msPerDay);
+  const price = days * DAILY_RATE;
+
+  // Update UI
+  subtotalEl.textContent = `$${price.toFixed(2)}`;
+  feeEl.textContent = `$${fee.toFixed(2)}`;
+  totalEl.textContent = `$${(price + fee).toFixed(2)}`;
+
+  // Make sure Stripe gets the correct rate
+  window.selectedCustomDays = days;
+  window.selectedCustomPrice = price;
+}
+
+endDateInput.addEventListener("change", calculateDaysAndPrice);
+endTimeInput.addEventListener("change", calculateDaysAndPrice);
   </script>
 </body>
 </html>
