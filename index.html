@@ -59,6 +59,20 @@
         </div>
         <div class="p">$24.99</div>
       </div>
+      <div
+  id="longerLink"
+  style="margin-top:12px; color:#1a73e8; font-weight:700; cursor:pointer;"
+>
+  Need to stay longer? Choose a later end time
+</div>
+
+<div id="dateTimePicker" style="display:none; margin-top:12px;">
+  <label class="label">End date</label>
+  <input type="date" id="endDate" />
+
+  <label class="label">End time</label>
+  <input type="time" id="endTime" />
+</div>
 <div style="font-weight:900; margin-top:16px;">
   Enter your license plate
 </div>
@@ -91,106 +105,127 @@
       </div>
     </div>
   </div>
+<script>
+  const fee = 0.35;
+  const DAILY_RATE = 24.99;
 
-  <script>
-    const fee = 0.35;
-    const rateA = document.getElementById("rateA");
-    const rateB = document.getElementById("rateB");
-    const subtotalEl = document.getElementById("subtotal");
-    const feeEl = document.getElementById("fee");
-    const totalEl = document.getElementById("total");
+  const rateA = document.getElementById("rateA");
+  const rateB = document.getElementById("rateB");
+  const subtotalEl = document.getElementById("subtotal");
+  const feeEl = document.getElementById("fee");
+  const totalEl = document.getElementById("total");
 
-    function fmt(n){return `$${n.toFixed(2)}`;}
-    function setActive(el){
-      [rateA, rateB].forEach(r=>r.classList.remove("active"));
-      el.classList.add("active");
-      const price = parseFloat(el.dataset.price);
-      subtotalEl.textContent = fmt(price);
-      feeEl.textContent = fmt(fee);
-      totalEl.textContent = fmt(price + fee);
+  // Longer-stay elements (now they exist because you added the HTML)
+  const longerLink = document.getElementById("longerLink");
+  const picker = document.getElementById("dateTimePicker");
+  const endDateInput = document.getElementById("endDate");
+  const endTimeInput = document.getElementById("endTime");
+
+  // State for Stripe
+  window.selectedCustomDays = null;
+
+  function fmt(n) { return `$${n.toFixed(2)}`; }
+
+  function setTotals(subtotal) {
+    subtotalEl.textContent = fmt(subtotal);
+    feeEl.textContent = fmt(fee);
+    totalEl.textContent = fmt(subtotal + fee);
+  }
+
+  function setActive(el) {
+    // If user clicks a fixed rate, clear custom days and hide the picker (optional but clean)
+    window.selectedCustomDays = null;
+    picker.style.display = "none";
+
+    [rateA, rateB].forEach(r => r.classList.remove("active"));
+    el.classList.add("active");
+
+    const price = parseFloat(el.dataset.price);
+    setTotals(price);
+  }
+
+  // Default selection
+  rateA.addEventListener("click", () => setActive(rateA));
+  rateB.addEventListener("click", () => setActive(rateB));
+  setActive(rateA);
+
+  // Show picker
+  longerLink.addEventListener("click", () => {
+    picker.style.display = "block";
+  });
+
+  function calculateDaysAndPrice() {
+    if (!endDateInput.value || !endTimeInput.value) return;
+
+    const now = new Date();
+    const end = new Date(`${endDateInput.value}T${endTimeInput.value}`);
+
+    if (end <= now) {
+      alert("End time must be in the future.");
+      return;
     }
-    rateA.addEventListener("click", ()=>setActive(rateA));
-    rateB.addEventListener("click", ()=>setActive(rateB));
-    setActive(rateA);
-    document.getElementById("payBtn").addEventListener("click", async () => {
-  const plate = document.getElementById("plate").value.trim();
-  const region = document.getElementById("region").value;
-  const phone = document.getElementById("phone").value.trim();
-  const rate = rateB.classList.contains("active") ? "ALL_DAY" : "OVERNIGHT";
 
-  if (!plate) {
-    alert("License plate is required.");
-    return;
+    const msPerDay = 1000 * 60 * 60 * 24;
+    const diffMs = end - now;
+
+    // Round UP to full days
+    const days = Math.max(1, Math.ceil(diffMs / msPerDay));
+    const price = days * DAILY_RATE;
+
+    // Mark both rate boxes as not selected (optional)
+    [rateA, rateB].forEach(r => r.classList.remove("active"));
+
+    // Save for Stripe + update UI
+    window.selectedCustomDays = days;
+    setTotals(price);
   }
 
-  const btn = document.getElementById("payBtn");
-  btn.disabled = true;
-  btn.textContent = "Starting checkout…";
+  endDateInput.addEventListener("change", calculateDaysAndPrice);
+  endTimeInput.addEventListener("change", calculateDaysAndPrice);
 
-  try {
-    const r = await fetch("/api/create-checkout-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        rate,
-        licensePlate: plate,
-        region,
-        phone,
-        customDays: window.selectedCustomDays || null,
-        customPrice: window.selectedCustomPrice || null
-      })
-    });
+  // PAY button -> Stripe Checkout
+  document.getElementById("payBtn").addEventListener("click", async () => {
+    const plate = document.getElementById("plate").value.trim();
+    const region = document.getElementById("region").value;
+    const phone = document.getElementById("phone").value.trim();
 
-    const data = await r.json();
-    if (!r.ok) throw new Error(data?.error || "Checkout failed");
-    window.location.href = data.url;
-  } catch (e) {
-    alert(e.message);
-    btn.disabled = false;
-    btn.textContent = "Pay";
-  }
-});
-    });
+    // If no custom days, use the selected fixed rate
+    const rate = rateB.classList.contains("active") ? "ALL_DAY" : "OVERNIGHT";
+
+    if (!plate) {
+      alert("License plate is required.");
+      return;
+    }
+
+    const btn = document.getElementById("payBtn");
+    btn.disabled = true;
+    btn.textContent = "Starting checkout…";
+
+    try {
+      const r = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          rate,
+          licensePlate: plate,
+          region,
+          phone,
+          customDays: window.selectedCustomDays || null
+        })
+      });
+
+      const data = await r.json();
+      if (!r.ok) throw new Error(data?.error || "Checkout failed");
+      window.location.href = data.url;
+    } catch (e) {
+      alert(e.message);
+      btn.disabled = false;
+      btn.textContent = "Pay";
+    }
+  });
+</script>
+
     
-});const DAILY_RATE = 24.99;
-
-const longerLink = document.getElementById("longerLink");
-const picker = document.getElementById("dateTimePicker");
-const endDateInput = document.getElementById("endDate");
-const endTimeInput = document.getElementById("endTime");
-
-longerLink.addEventListener("click", () => {
-  picker.style.display = "block";
-});
-
-// Assume “now” is the start time
-function calculateDaysAndPrice() {
-  if (!endDateInput.value || !endTimeInput.value) return;
-
-  const now = new Date();
-  const end = new Date(`${endDateInput.value}T${endTimeInput.value}`);
-
-  if (end <= now) return;
-
-  const msPerDay = 1000 * 60 * 60 * 24;
-  const diffMs = end - now;
-
-  // ROUND UP to full days
-  const days = Math.ceil(diffMs / msPerDay);
-  const price = days * DAILY_RATE;
-
-  // Update UI
-  subtotalEl.textContent = `$${price.toFixed(2)}`;
-  feeEl.textContent = `$${fee.toFixed(2)}`;
-  totalEl.textContent = `$${(price + fee).toFixed(2)}`;
-
-  // Make sure Stripe gets the correct rate
-  window.selectedCustomDays = days;
-  window.selectedCustomPrice = price;
-}
-
-endDateInput.addEventListener("change", calculateDaysAndPrice);
-endTimeInput.addEventListener("change", calculateDaysAndPrice);
-  </script>
+  
 </body>
 </html>
