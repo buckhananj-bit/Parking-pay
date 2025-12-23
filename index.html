@@ -97,6 +97,18 @@
 
       <div class="row"><div>Subtotal</div><div id="subtotal">$12.50</div></div>
       <div class="row"><div>Service Fee</div><div id="fee">$0.35</div></div>
+      <div class="row" id="discountRow" style="display:none;">
+  <div>Discount</div>
+  <div id="discountAmt">-$0.00</div>
+</div>
+
+<div style="margin-top:12px;">
+  <label class="label" style="margin-top:0">Discount code (optional)</label>
+  <div style="display:flex; gap:10px;">
+    <input id="discountCode" placeholder="Enter code" style="flex:1;" />
+    <button id="applyDiscountBtn" type="button" style="width:auto; margin-top:0; padding:12px 14px;">Apply</button>
+  </div>
+  <div id="discountMsg"
       <div class="total"><div>Order Total</div><div id="total">$12.85</div></div>
 
    <button id="payBtn">Pay</button>
@@ -123,14 +135,35 @@
 
   // State for Stripe
   window.selectedCustomDays = null;
+  window.appliedDiscountCode = null;
+window.currentSubtotal = 12.50; // will be overwritten by your setTotals calls
+window.currentDiscountAmount = 0;
 
   function fmt(n) { return `$${n.toFixed(2)}`; }
 
   function setTotals(subtotal) {
-    subtotalEl.textContent = fmt(subtotal);
-    feeEl.textContent = fmt(fee);
-    totalEl.textContent = fmt(subtotal + fee);
+  window.currentSubtotal = window.current || {};
+  window.currentSubtotal = subtotal;
+
+  // discount amount comes from code validation (client-side display)
+  const discountAmount = Number(window.currentDiscountAmount || 0);
+
+  const discountedSubtotal = Math.max(0, subtotal - discountAmount);
+
+  subtotalEl.textContent = fmt(discountedSubtotal);
+  feeEl.textContent = fmt(fee);
+  totalEl.textContent = fmt(discountedSubtotal + fee);
+
+  // show/hide discount row
+  const discountRow = document.getElementById("discountRow");
+  const discountAmtEl = document.getElementById("discountAmt");
+  if (discountAmount > 0) {
+    discountRow.style.display = "flex";
+    discountAmtEl.textContent = `-${fmt(discountAmount)}`;
+  } else {
+    discountRow.style.display = "none";
   }
+}
 
   function setActive(el) {
     // If user clicks a fixed rate, clear custom days and hide the picker (optional but clean)
@@ -148,6 +181,43 @@
   rateA.addEventListener("click", () => setActive(rateA));
   rateB.addEventListener("click", () => setActive(rateB));
   setActive(rateA);
+  const DISCOUNT_CODES = {
+  // You can change these later
+  "SAVE10": { type: "percent", value: 10 },   // 10% off
+  "FIVEOFF": { type: "fixed", value: 5 },     // $5 off
+  "LOT88VIP": { type: "fixed", value: 12.50 } // makes overnight free
+};
+
+function computeDiscount(subtotal, code) {
+  if (!code) return 0;
+  const c = DISCOUNT_CODES[String(code).trim().toUpperCase()];
+  if (!c) return null;
+
+  if (c.type === "percent") return subtotal * (c.value / 100);
+  if (c.type === "fixed") return c.value;
+  return 0;
+}
+
+document.getElementById("applyDiscountBtn").addEventListener("click", () => {
+  const code = document.getElementById("discountCode").value.trim().toUpperCase();
+  const msg = document.getElementById("discountMsg");
+
+  const disc = computeDiscount(window.currentSubtotal, code);
+
+  if (disc === null) {
+    window.appliedDiscountCode = null;
+    window.currentDiscountAmount = 0;
+    msg.textContent = "Invalid discount code.";
+    setTotals(window.currentSubtotal);
+    return;
+  }
+
+  window.appliedDiscountCode = code;
+  window.currentDiscountAmount = disc;
+
+  msg.textContent = `Discount applied: ${code}`;
+  setTotals(window.currentSubtotal);
+});
 
   // Show picker
   longerLink.addEventListener("click", () => {
