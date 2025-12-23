@@ -43,7 +43,7 @@ const discountAmount = discountAmountFor(subtotal, code);
 const discountedSubtotal = Math.max(0, subtotal - discountAmount);
     const form = new URLSearchParams();
     form.set("mode", "payment");
-    form.set("success_url", `${baseUrl}/success.html`);
+    form.set("success_url", `${baseUrl}/success.html?session_id={CHECKOUT_SESSION_ID}`);
     form.set("cancel_url", `${baseUrl}/`);
 
     // Apple Pay / Google Pay / cards (Stripe decides what to show)
