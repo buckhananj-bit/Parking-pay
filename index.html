@@ -267,10 +267,7 @@
 window.currentSubtotal = 12.50; // will be overwritten by your setTotals calls
 window.currentDiscountAmount = 0;
 
-  function fmt(n) { return `$${n.toFixed(2)}`; }
-
-  function setTotals(subtotal) {
-  window.currentSubtotal = window.current || {};
+  function fmt(n) { return `$${n.toFixed(2)}`; 
   window.currentSubtotal = subtotal;
 
   // discount amount comes from code validation (client-side display)
@@ -377,16 +374,51 @@ document.getElementById("applyDiscountBtn").addEventListener("click", () => {
     window.selectedCustomDays = days;
     setTotals(price);
   }
+async function startCheckout() {
+  const plate = document.getElementById("plate").value.trim();
+  const region = document.getElementById("region").value;
+  const phone = document.getElementById("phone").value.trim();
+  const rate = rateB.classList.contains("active") ? "ALL_DAY" : "OVERNIGHT";
 
+  if (!plate) {
+    alert("License plate is required.");
+    return;
+  }
+
+  const r = await fetch("/api/create-checkout-session", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      rate,
+      licensePlate: plate,
+      region,
+      phone,
+      customDays: window.selectedCustomDays || null,
+      discountCode: window.appliedDiscountCode || null
+    })
+  });
+
+  const data = await r.json();
+  if (!r.ok) throw new Error(data?.error || "Checkout failed");
+  window.location.href = data.url;
+}document.getElementById("applePayBtn").addEventListener("click", () => startCheckout().catch(e => alert(e.message)));
+document.getElementById("googlePayBtn").addEventListener("click", () => startCheckout().catch(e => alert(e.message)));
   endDateInput.addEventListener("change", calculateDaysAndPrice);
   endTimeInput.addEventListener("change", calculateDaysAndPrice);
 
   // PAY button -> Stripe Checkout
   document.getElementById("payBtn").addEventListener("click", async () => {
-    const plate = document.getElementById("plate").value.trim();
-    const region = document.getElementById("region").value;
-    const phone = document.getElementById("phone").value.trim();
-
+  const btn = document.getElementById("payBtn");
+  btn.disabled = true;
+  btn.textContent = "Starting checkout…";
+  try {
+    await startCheckout();
+  } catch (e) {
+    alert(e.message);
+    btn.disabled = false;
+    btn.textContent = "Pay";
+  }
+});on
     // If no custom days, use the selected fixed rate
     const rate = rateB.classList.contains("active") ? "ALL_DAY" : "OVERNIGHT";
 
