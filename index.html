@@ -87,11 +87,91 @@
         <option value="OR">OR</option>
         <option value="CA">CA</option>
       </select>
+<div class="card">
+  <div class="label" style="margin-top:0">Payment Summary</div>
 
+  <div class="row"><div>Subtotal</div><div id="subtotal">$12.50</div></div>
+  <div class="row"><div>Service Fee</div><div id="fee">$0.35</div></div>
+
+  <div class="row" id="discountRow" style="display:none;">
+    <div>Discount</div>
+    <div id="discountAmt">-$0.00</div>
+  </div>
+
+  <div style="margin-top:12px;">
+    <label class="label" style="margin-top:0">Discount code (optional)</label>
+    <div style="display:flex; gap:10px;">
+      <input id="discountCode" placeholder="Enter code" style="flex:1;" />
+      <button id="applyDiscountBtn" type="button" style="width:auto; margin-top:0; padding:12px 14px;">Apply</button>
+    </div>
+    <div id="discountMsg" class="hint" style="margin-top:8px;"></div>
+  </div>
+
+  <div class="total">
+    <div>Order Total</div>
+    <div id="total">$12.85</div>
+  </div>
+
+  <!-- Wallet buttons container -->
+  <div style="
+    margin-top:14px;
+    padding:14px;
+    background:#1a73e8;
+    border-radius:12px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  ">
+    <button
+      id="applePayBtn"
+      type="button"
+      style="
+        width:100%;
+        padding:14px;
+        border:none;
+        border-radius:10px;
+        background:#0a4dbf;
+        color:#fff;
+        font-weight:900;
+        font-size:16px;
+        margin-top:0;
+      "
+    >
+      Buy with Apple Pay
+    </button>
+
+    <button
+      id="googlePayBtn"
+      type="button"
+      style="
+        width:100%;
+        padding:14px;
+        border:none;
+        border-radius:10px;
+        background:#0a4dbf;
+        color:#fff;
+        font-weight:900;
+        font-size:16px;
+        margin-top:0;
+      "
+    >
+      Buy with Google Pay
+    </button>
+  </div>
+
+  <div style="text-align:center; color:#666; font-size:12px; margin-top:10px;">
+    Continue to pay with credit card
+  </div>
+
+  <button id="payBtn">Pay</button>
+
+  <div class="hint">
+    Next step will connect this button to Stripe Checkout (Apple Pay / Google Pay / card) and save your license plate to the payment.
+  </div>
+</div>
       <label class="label">Phone (optional)</label>
       <input id="phone" placeholder="(###) ###-####" inputmode="tel" />
     </div>
-
     <div class="card">
       <div class="label" style="margin-top:0">Payment Summary</div>
 
