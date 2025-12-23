@@ -11,7 +11,12 @@ export default async function handler(req, res) {
     const OVERNIGHT = 12.50;
     const ALL_DAY = 24.99;
 
-    const subtotal = rate === "ALL_DAY" ? ALL_DAY : OVERNIGHT;
+    const subtotal =
+  req.body.customPrice
+    ? Number(req.body.customPrice)
+    : rate === "ALL_DAY"
+      ? ALL_DAY
+      : OVERNIGHT;
 
     const proto = req.headers["x-forwarded-proto"] || "https";
     const host = req.headers.host;
