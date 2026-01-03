@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Lot #88 Parking Payment</title>
+
   <style>
     :root{--border:#dcdcdc;--muted:#666;--accent:#1a73e8;}
     *{box-sizing:border-box}
@@ -13,21 +14,26 @@
     .sub{color:var(--muted);font-size:14px}
     .label{display:block;margin:14px 0 6px;font-weight:700}
     input,select{width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;font-size:16px}
+
     .rate{border:2px solid var(--border);border-radius:12px;padding:14px;display:flex;justify-content:space-between;cursor:pointer}
     .rate.active{border-color:var(--accent)}
     .rate .t{font-weight:900}
     .rate .p{font-weight:900;font-size:18px}
+
     .row{display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid var(--border)}
     .row:first-child{border-top:none}
     .total{display:flex;justify-content:space-between;font-weight:900;font-size:18px;padding:12px 0;border-top:1px solid var(--border)}
     button{width:100%;margin-top:14px;padding:14px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-weight:900;font-size:16px}
+
     .hint{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.4}
   </style>
 </head>
+
 <body>
 
   <!-- Header image card -->
   <div class="card" style="padding:0; overflow:hidden">
+    <!-- Put your header image in the repo and update the path if needed -->
     <img src="/IMG_2341.jpeg" alt="Parking location" style="width:100%; height:180px; object-fit:cover;" />
     <div style="padding:16px">
       <div class="sub">U-Park System (Seattle)</div>
@@ -36,38 +42,17 @@
     </div>
   </div>
 
-  <!-- Rates + vehicle info -->
+  <!-- EVENT ONLY RATE + vehicle info -->
   <div class="card">
     <div class="label" style="margin-top:0">Confirm your rate</div>
 
-    <div id="rateA" class="rate active" data-price="12.50">
+    <!-- EVENT ONLY -->
+    <div id="rateEvent" class="rate active" data-price="30.00">
       <div>
-        <div class="t">Overnight</div>
-        <div class="sub">Select this option for overnight parking</div>
+        <div class="t">Event</div>
+        <div class="sub">Flat rate for event parking</div>
       </div>
-      <div class="p">$12.50</div>
-    </div>
-
-    <div style="height:10px"></div>
-
-    <div id="rateB" class="rate" data-price="24.99">
-      <div>
-        <div class="t">All Day</div>
-        <div class="sub">Select this option for all day parking</div>
-      </div>
-      <div class="p">$24.99</div>
-    </div>
-
-    <div id="longerLink" style="margin-top:12px; color:#1a73e8; font-weight:700; cursor:pointer;">
-      Need to stay longer? Choose a later end time
-    </div>
-
-    <div id="dateTimePicker" style="display:none; margin-top:12px;">
-      <label class="label">End date</label>
-      <input type="date" id="endDate" />
-
-      <label class="label">End time</label>
-      <input type="time" id="endTime" />
+      <div class="p" id="eventPriceText">$30.00</div>
     </div>
 
     <div style="font-weight:900; margin-top:16px;">
@@ -93,7 +78,7 @@
   <div class="card">
     <div class="label" style="margin-top:0">Payment Summary</div>
 
-    <div class="row"><div>Subtotal</div><div id="subtotal">$12.50</div></div>
+    <div class="row"><div>Subtotal</div><div id="subtotal">$30.00</div></div>
     <div class="row"><div>Service Fee</div><div id="fee">$0.35</div></div>
 
     <div class="row" id="discountRow" style="display:none;">
@@ -112,7 +97,7 @@
 
     <div class="total">
       <div>Order Total</div>
-      <div id="total">$12.85</div>
+      <div id="total">$30.35</div>
     </div>
 
     <!-- Wallet buttons box -->
@@ -143,72 +128,41 @@
     <button id="payBtn">Pay</button>
 
     <div class="hint">
-      Next step will connect this button to Stripe Checkout (Apple Pay / Google Pay / card) and save your license plate to the payment.
+      This button routes to your backend endpoint <code>/api/create-checkout-session</code> and then redirects to Stripe Checkout.
     </div>
   </div>
 
 <script>
-  const fee = 0.35;
-  const DAILY_RATE = 24.99;
+  // =========================
+  // EVENT SETTINGS (EDIT THESE)
+  // =========================
+  const EVENT_PRICE = 30.00;   // <-- change this for event days
+  const SERVICE_FEE = 0.35;    // <-- change if you want
 
-  const rateA = document.getElementById("rateA");
-  const rateB = document.getElementById("rateB");
-  const subtotalEl = document.getElementById("subtotal");
-  const feeEl = document.getElementById("fee");
-  const totalEl = document.getElementById("total");
-
-  const longerLink = document.getElementById("longerLink");
-  const picker = document.getElementById("dateTimePicker");
-  const endDateInput = document.getElementById("endDate");
-  const endTimeInput = document.getElementById("endTime");
-
-  window.selectedCustomDays = null;
-  window.appliedDiscountCode = null;
-  window.currentSubtotal = 12.50;
-  window.currentDiscountAmount = 0;
-
+  // Optional discount codes (you can delete this entire section if you don't want discounts)
   const DISCOUNT_CODES = {
     "SAVE10": { type: "percent", value: 10 },
     "FIVEOFF": { type: "fixed", value: 5 },
     "LOT88VIP": { type: "fixed", value: 12.50 }
   };
 
-  function fmt(n){ return `$${n.toFixed(2)}`; }
+  // =========================
+  // UI ELEMENTS
+  // =========================
+  const subtotalEl = document.getElementById("subtotal");
+  const feeEl = document.getElementById("fee");
+  const totalEl = document.getElementById("total");
+  const eventPriceText = document.getElementById("eventPriceText");
 
-  function setTotals(subtotal) {
-    window.currentSubtotal = subtotal;
+  const discountRow = document.getElementById("discountRow");
+  const discountAmtEl = document.getElementById("discountAmt");
+  const discountMsg = document.getElementById("discountMsg");
 
-    const discountAmount = Number(window.currentDiscountAmount || 0);
-    const discountedSubtotal = Math.max(0, subtotal - discountAmount);
+  window.currentSubtotal = EVENT_PRICE;
+  window.currentDiscountAmount = 0;
+  window.appliedDiscountCode = null;
 
-    subtotalEl.textContent = fmt(discountedSubtotal);
-    feeEl.textContent = fmt(fee);
-    totalEl.textContent = fmt(discountedSubtotal + fee);
-
-    const discountRow = document.getElementById("discountRow");
-    const discountAmtEl = document.getElementById("discountAmt");
-    if (discountAmount > 0) {
-      discountRow.style.display = "flex";
-      discountAmtEl.textContent = `-${fmt(discountAmount)}`;
-    } else {
-      discountRow.style.display = "none";
-    }
-  }
-
-  function setActive(el){
-    window.selectedCustomDays = null;
-    picker.style.display = "none";
-
-    [rateA, rateB].forEach(r=>r.classList.remove("active"));
-    el.classList.add("active");
-
-    const price = parseFloat(el.dataset.price);
-    setTotals(price);
-  }
-
-  rateA.addEventListener("click", ()=>setActive(rateA));
-  rateB.addEventListener("click", ()=>setActive(rateB));
-  setActive(rateA);
+  function fmt(n){ return `$${Number(n).toFixed(2)}`; }
 
   function computeDiscount(subtotal, code) {
     if (!code) return 0;
@@ -219,55 +173,51 @@
     return 0;
   }
 
+  function setTotals(subtotal) {
+    window.currentSubtotal = Number(subtotal);
+
+    const discountAmount = Number(window.currentDiscountAmount || 0);
+    const discountedSubtotal = Math.max(0, window.currentSubtotal - discountAmount);
+
+    subtotalEl.textContent = fmt(discountedSubtotal);
+    feeEl.textContent = fmt(SERVICE_FEE);
+    totalEl.textContent = fmt(discountedSubtotal + SERVICE_FEE);
+
+    if (discountAmount > 0) {
+      discountRow.style.display = "flex";
+      discountAmtEl.textContent = `-${fmt(discountAmount)}`;
+    } else {
+      discountRow.style.display = "none";
+      discountAmtEl.textContent = fmt(0);
+    }
+  }
+
+  // Initialize displayed event price
+  eventPriceText.textContent = fmt(EVENT_PRICE);
+  setTotals(EVENT_PRICE);
+
   document.getElementById("applyDiscountBtn").addEventListener("click", () => {
     const code = document.getElementById("discountCode").value.trim().toUpperCase();
-    const msg = document.getElementById("discountMsg");
 
     const disc = computeDiscount(window.currentSubtotal, code);
     if (disc === null) {
       window.appliedDiscountCode = null;
       window.currentDiscountAmount = 0;
-      msg.textContent = "Invalid discount code.";
-      setTotals(window.currentSubtotal);
+      discountMsg.textContent = "Invalid discount code.";
+      setTotals(EVENT_PRICE);
       return;
     }
 
-    window.appliedDiscountCode = code;
-    window.currentDiscountAmount = disc;
-    msg.textContent = code ? `Discount applied: ${code}` : "";
-    setTotals(window.currentSubtotal);
+    window.appliedDiscountCode = code || null;
+    window.currentDiscountAmount = Number(disc || 0);
+    discountMsg.textContent = code ? `Discount applied: ${code}` : "";
+    setTotals(EVENT_PRICE);
   });
-
-  longerLink.addEventListener("click", ()=>{ picker.style.display = "block"; });
-
-  function calculateDaysAndPrice(){
-    if (!endDateInput.value || !endTimeInput.value) return;
-
-    const now = new Date();
-    const end = new Date(`${endDateInput.value}T${endTimeInput.value}`);
-
-    if (end <= now) {
-      alert("End time must be in the future.");
-      return;
-    }
-
-    const msPerDay = 1000 * 60 * 60 * 24;
-    const days = Math.max(1, Math.ceil((end - now) / msPerDay));
-    const price = days * DAILY_RATE;
-
-    [rateA, rateB].forEach(r=>r.classList.remove("active"));
-    window.selectedCustomDays = days;
-    setTotals(price);
-  }
-
-  endDateInput.addEventListener("change", calculateDaysAndPrice);
-  endTimeInput.addEventListener("change", calculateDaysAndPrice);
 
   async function startCheckout() {
     const plate = document.getElementById("plate").value.trim();
     const region = document.getElementById("region").value;
     const phone = document.getElementById("phone").value.trim();
-    const rate = rateB.classList.contains("active") ? "ALL_DAY" : "OVERNIGHT";
 
     if (!plate) {
       alert("License plate is required.");
@@ -278,12 +228,15 @@
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        rate,
+        rate: "EVENT",
+        amount: window.currentSubtotal,         // base event amount
+        serviceFee: SERVICE_FEE,               // optional: backend may ignore
+        discountCode: window.appliedDiscountCode || null,
+        discountAmount: window.currentDiscountAmount || 0,
+
         licensePlate: plate,
         region,
-        phone,
-        customDays: window.selectedCustomDays || null,
-        discountCode: window.appliedDiscountCode || null
+        phone
       })
     });
 
