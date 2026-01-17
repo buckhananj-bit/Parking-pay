@@ -1,271 +1,123 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Lot #88 Parking Payment</title>
-
-  <style>
-    :root{--border:#dcdcdc;--muted:#666;--accent:#1a73e8;}
-    *{box-sizing:border-box}
-    body{margin:0;background:#f6f7f8;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
-    .card{background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin:12px 0}
-    h1{margin:0 0 6px;font-size:22px}
-    .sub{color:var(--muted);font-size:14px}
-    .label{display:block;margin:14px 0 6px;font-weight:700}
-    input,select{width:100%;padding:12px;border:1px solid var(--border);border-radius:10px;font-size:16px}
-
-    .rate{border:2px solid var(--border);border-radius:12px;padding:14px;display:flex;justify-content:space-between;cursor:pointer}
-    .rate.active{border-color:var(--accent)}
-    .rate .t{font-weight:900}
-    .rate .p{font-weight:900;font-size:18px}
-
-    .row{display:flex;justify-content:space-between;padding:10px 0;border-top:1px solid var(--border)}
-    .row:first-child{border-top:none}
-    .total{display:flex;justify-content:space-between;font-weight:900;font-size:18px;padding:12px 0;border-top:1px solid var(--border)}
-    button{width:100%;margin-top:14px;padding:14px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-weight:900;font-size:16px}
-
-    .hint{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.4}
-  </style>
-</head>
-
-<body>
-
-  <!-- Header image card -->
-  <div class="card" style="padding:0; overflow:hidden">
-    <!-- Put your header image in the repo and update the path if needed -->
-    <img src="/IMG_2341.jpeg" alt="Parking location" style="width:100%; height:180px; object-fit:cover;" />
-    <div style="padding:16px">
-      <div class="sub">U-Park System (Seattle)</div>
-      <h1>Lot #88</h1>
-      <div class="sub">120 5th Ave S, Seattle, WA</div>
-    </div>
-  </div>
-
-  <!-- EVENT ONLY RATE + vehicle info -->
-  <div class="card">
-    <div class="label" style="margin-top:0">Confirm your rate</div>
-
-    <!-- EVENT ONLY -->
-    <div id="rateEvent" class="rate active" data-price="30.00">
-      <div>
-        <div class="t">Event</div>
-        <div class="sub">Flat rate for event parking</div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lot #88 - Event Parking</title>
+    <style>
+      body { font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif; margin: 0; background:#f5f5f5; }
+      .card { max-width: 720px; margin: 20px auto; background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 6px 24px rgba(0,0,0,.08); }
+      .hero { padding: 16px; border-bottom: 1px solid #eee; }
+      .title { font-size: 22px; font-weight: 800; margin: 0; }
+      .sub { margin: 6px 0 0; color: #555; }
+      .section { padding: 16px; }
+      label { display:block; font-weight: 700; margin: 14px 0 6px; }
+      input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; }
+      .ratebox { display:flex; justify-content:space-between; align-items:center; border:2px solid #2d6cdf; border-radius: 12px; padding: 14px; }
+      .ratebox b { font-size: 18px; }
+      .btn { width:100%; padding: 14px; font-size: 18px; border: 0; border-radius: 12px; background:#2d6cdf; color:#fff; font-weight: 800; cursor:pointer; margin-top: 16px; }
+      .btn:disabled { opacity: .6; cursor:not-allowed; }
+      .fine { color:#666; font-size: 13px; margin-top: 10px; line-height: 1.35; }
+      .error { color:#b00020; font-weight:700; margin-top: 10px; }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="hero">
+        <p class="sub" style="margin:0;">U-Park System (Seattle)</p>
+        <h1 class="title">Lot #88</h1>
+        <p class="sub">120 5th Ave S, Seattle, WA</p>
       </div>
-      <div class="p" id="eventPriceText">$60.00</div>
-    </div>
 
-    <div style="font-weight:900; margin-top:16px;">
-      Enter your license plate
-    </div>
+      <div class="section">
+        <h2 style="margin:0 0 10px;">Confirm your rate</h2>
 
-    <label class="label">License plate number (required)</label>
-    <input id="plate" placeholder="ABC123" />
+        <div class="ratebox">
+          <div>
+            <b>Event</b><div style="color:#666;">Flat rate for event parking</div>
+          </div>
+          <div style="font-size:22px; font-weight:900;">$60.00</div>
+        </div>
 
-    <label class="label">State / Province (optional)</label>
-    <select id="region">
-      <option value="">Select…</option>
-      <option value="WA">WA</option>
-      <option value="OR">OR</option>
-      <option value="CA">CA</option>
-    </select>
+        <label for="plate">License plate number (required)</label>
+        <input id="plate" placeholder="ABC1234" autocomplete="off" />
 
-    <label class="label">Phone (optional)</label>
-    <input id="phone" placeholder="(###) ###-####" inputmode="tel" />
-  </div>
+        <label for="state">State / Province (optional)</label>
+        <select id="state">
+          <option value="">--</option>
+          <option value="WA" selected>WA</option>
+          <option value="OR">OR</option>
+          <option value="CA">CA</option>
+          <option value="ID">ID</option>
+        </select>
 
-  <!-- Payment summary -->
-  <div class="card">
-    <div class="label" style="margin-top:0">Payment Summary</div>
+        <label for="phone">Phone (optional)</label>
+        <input id="phone" placeholder="(###) ###-####" autocomplete="tel" />
 
-    <div class="row"><div>Subtotal</div><div id="subtotal">$30.00</div></div>
-    <div class="row"><div>Service Fee</div><div id="fee">$0.35</div></div>
+        <button id="payBtn" class="btn">Pay</button>
+        <div id="err" class="error"></div>
 
-    <div class="row" id="discountRow" style="display:none;">
-      <div>Discount</div>
-      <div id="discountAmt">-$0.00</div>
-    </div>
-
-    <div style="margin-top:12px;">
-      <label class="label" style="margin-top:0">Discount code (optional)</label>
-      <div style="display:flex; gap:10px;">
-        <input id="discountCode" placeholder="Enter code" style="flex:1;" />
-        <button id="applyDiscountBtn" type="button" style="width:auto; margin-top:0; padding:12px 14px;">Apply</button>
+        <div class="fine">
+          This button routes to <code>/api/create-checkout-session</code> and then redirects to Stripe Checkout.
+        </div>
       </div>
-      <div id="discountMsg" class="hint" style="margin-top:8px;"></div>
     </div>
 
-    <div class="total">
-      <div>Order Total</div>
-      <div id="total">$60.35</div>
-    </div>
+    <script>
+      const payBtn = document.getElementById("payBtn");
+      const errEl = document.getElementById("err");
 
-    <!-- Wallet buttons box -->
-    <div style="
-      margin-top:14px;
-      padding:14px;
-      background:#1a73e8;
-      border-radius:12px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    ">
-      <button id="applePayBtn" type="button" style="
-        width:100%; padding:14px; border:none; border-radius:10px;
-        background:#0a4dbf; color:#fff; font-weight:900; font-size:16px; margin-top:0;
-      ">Buy with Apple Pay</button>
+      function cleanPlate(v) {
+        return (v || "").trim().toUpperCase();
+      }
 
-      <button id="googlePayBtn" type="button" style="
-        width:100%; padding:14px; border:none; border-radius:10px;
-        background:#0a4dbf; color:#fff; font-weight:900; font-size:16px; margin-top:0;
-      ">Buy with Google Pay</button>
-    </div>
+      payBtn.addEventListener("click", async () => {
+        errEl.textContent = "";
 
-    <div style="text-align:center; color:#666; font-size:12px; margin-top:10px;">
-      Continue to pay with credit card
-    </div>
+        const plate = cleanPlate(document.getElementById("plate").value);
+        const state = (document.getElementById("state").value || "").trim().toUpperCase();
+        const phone = (document.getElementById("phone").value || "").trim();
 
-    <button id="payBtn">Pay</button>
+        if (!plate) {
+          errEl.textContent = "Please enter a license plate number.";
+          return;
+        }
 
-    <div class="hint">
-      This button routes to your backend endpoint <code>/api/create-checkout-session</code> and then redirects to Stripe Checkout.
-    </div>
-  </div>
+        payBtn.disabled = true;
+        payBtn.textContent = "Starting checkout...";
 
-<script>
-  // =========================
-  // EVENT SETTINGS (EDIT THESE)
-  // =========================
-  const EVENT_PRICE = 60.00;   // <-- change this for event days
-  const SERVICE_FEE = 0.35;    // <-- change if you want
+        try {
+          const res = await fetch("/api/create-checkout-session", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              lotNumber: "88",
+              lotAddress: "120 5th Ave S, Seattle, WA",
+              rateType: "event",
+              amountCents: 6000,
+              licensePlate: plate,
+              state,
+              phone
+            })
+          });
 
-  // Optional discount codes (you can delete this entire section if you don't want discounts)
-  const DISCOUNT_CODES = {
-    "SAVE10": { type: "percent", value: 10 },
-    "FIVEOFF": { type: "fixed", value: 5 },
-    "LOT88VIP": { type: "fixed", value: 12.50 }
-  };
+          const data = await res.json().catch(() => ({}));
 
-  // =========================
-  // UI ELEMENTS
-  // =========================
-  const subtotalEl = document.getElementById("subtotal");
-  const feeEl = document.getElementById("fee");
-  const totalEl = document.getElementById("total");
-  const eventPriceText = document.getElementById("eventPriceText");
+          if (!res.ok) {
+            throw new Error(data?.error || "Checkout failed.");
+          }
 
-  const discountRow = document.getElementById("discountRow");
-  const discountAmtEl = document.getElementById("discountAmt");
-  const discountMsg = document.getElementById("discountMsg");
+          if (!data?.url || typeof data.url !== "string") {
+            throw new Error("Server did not return a valid Stripe Checkout URL.");
+          }
 
-  window.currentSubtotal = EVENT_PRICE;
-  window.currentDiscountAmount = 0;
-  window.appliedDiscountCode = null;
-
-  function fmt(n){ return `$${Number(n).toFixed(2)}`; }
-
-  function computeDiscount(subtotal, code) {
-    if (!code) return 0;
-    const c = DISCOUNT_CODES[String(code).trim().toUpperCase()];
-    if (!c) return null;
-    if (c.type === "percent") return subtotal * (c.value / 100);
-    if (c.type === "fixed") return c.value;
-    return 0;
-  }
-
-  function setTotals(subtotal) {
-    window.currentSubtotal = Number(subtotal);
-
-    const discountAmount = Number(window.currentDiscountAmount || 0);
-    const discountedSubtotal = Math.max(0, window.currentSubtotal - discountAmount);
-
-    subtotalEl.textContent = fmt(discountedSubtotal);
-    feeEl.textContent = fmt(SERVICE_FEE);
-    totalEl.textContent = fmt(discountedSubtotal + SERVICE_FEE);
-
-    if (discountAmount > 0) {
-      discountRow.style.display = "flex";
-      discountAmtEl.textContent = `-${fmt(discountAmount)}`;
-    } else {
-      discountRow.style.display = "none";
-      discountAmtEl.textContent = fmt(0);
-    }
-  }
-
-  // Initialize displayed event price
-  eventPriceText.textContent = fmt(EVENT_PRICE);
-  setTotals(EVENT_PRICE);
-
-  document.getElementById("applyDiscountBtn").addEventListener("click", () => {
-    const code = document.getElementById("discountCode").value.trim().toUpperCase();
-
-    const disc = computeDiscount(window.currentSubtotal, code);
-    if (disc === null) {
-      window.appliedDiscountCode = null;
-      window.currentDiscountAmount = 0;
-      discountMsg.textContent = "Invalid discount code.";
-      setTotals(EVENT_PRICE);
-      return;
-    }
-
-    window.appliedDiscountCode = code || null;
-    window.currentDiscountAmount = Number(disc || 0);
-    discountMsg.textContent = code ? `Discount applied: ${code}` : "";
-    setTotals(EVENT_PRICE);
-  });
-
-  async function startCheckout() {
-    const plate = document.getElementById("plate").value.trim();
-    const region = document.getElementById("region").value;
-    const phone = document.getElementById("phone").value.trim();
-
-    if (!plate) {
-      alert("License plate is required.");
-      return;
-    }
-
-    const r = await fetch("/api/create-checkout-session", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        rate: "EVENT",
-        amount: window.currentSubtotal,         // base event amount
-        serviceFee: SERVICE_FEE,               // optional: backend may ignore
-        discountCode: window.appliedDiscountCode || null,
-        discountAmount: window.currentDiscountAmount || 0,
-
-        licensePlate: plate,
-        region,
-        phone
-      })
-    });
-
-    const data = await r.json();
-    if (!r.ok) throw new Error(data?.error || "Checkout failed");
-    window.location.href = data.url;
-  }
-
-  document.getElementById("applePayBtn").addEventListener("click", () => {
-    startCheckout().catch(e => alert(e.message));
-  });
-
-  document.getElementById("googlePayBtn").addEventListener("click", () => {
-    startCheckout().catch(e => alert(e.message));
-  });
-
-  document.getElementById("payBtn").addEventListener("click", async () => {
-    const btn = document.getElementById("payBtn");
-    btn.disabled = true;
-    btn.textContent = "Starting checkout…";
-    try {
-      await startCheckout();
-    } catch (e) {
-      alert(e.message);
-      btn.disabled = false;
-      btn.textContent = "Pay";
-    }
-  });
-</script>
-
-</body>
+          window.location.href = data.url;
+        } catch (e) {
+          errEl.textContent = e.message || "Something went wrong.";
+          payBtn.disabled = false;
+          payBtn.textContent = "Pay";
+        }
+      });
+    </script>
+  </body>
 </html>
