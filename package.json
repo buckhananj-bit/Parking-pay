@@ -1,0 +1,8 @@
+{
+  "name": "lot-88-pay",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "stripe": "^16.0.0"
+  }
+}
