@@ -1,123 +1,189 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Lot #88 - Event Parking</title>
-    <style>
-      body { font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif; margin: 0; background:#f5f5f5; }
-      .card { max-width: 720px; margin: 20px auto; background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 6px 24px rgba(0,0,0,.08); }
-      .hero { padding: 16px; border-bottom: 1px solid #eee; }
-      .title { font-size: 22px; font-weight: 800; margin: 0; }
-      .sub { margin: 6px 0 0; color: #555; }
-      .section { padding: 16px; }
-      label { display:block; font-weight: 700; margin: 14px 0 6px; }
-      input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; }
-      .ratebox { display:flex; justify-content:space-between; align-items:center; border:2px solid #2d6cdf; border-radius: 12px; padding: 14px; }
-      .ratebox b { font-size: 18px; }
-      .btn { width:100%; padding: 14px; font-size: 18px; border: 0; border-radius: 12px; background:#2d6cdf; color:#fff; font-weight: 800; cursor:pointer; margin-top: 16px; }
-      .btn:disabled { opacity: .6; cursor:not-allowed; }
-      .fine { color:#666; font-size: 13px; margin-top: 10px; line-height: 1.35; }
-      .error { color:#b00020; font-weight:700; margin-top: 10px; }
-    </style>
-  </head>
-  <body>
-    <div class="card">
-      <div class="hero">
-        <p class="sub" style="margin:0;">U-Park System (Seattle)</p>
-        <h1 class="title">Lot #88</h1>
-        <p class="sub">120 5th Ave S, Seattle, WA</p>
-      </div>
-
-      <div class="section">
-        <h2 style="margin:0 0 10px;">Confirm your rate</h2>
-
-        <div class="ratebox">
-          <div>
-            <b>Event</b><div style="color:#666;">Flat rate for event parking</div>
-          </div>
-          <div style="font-size:22px; font-weight:900;">$60.00</div>
-        </div>
-
-        <label for="plate">License plate number (required)</label>
-        <input id="plate" placeholder="ABC1234" autocomplete="off" />
-
-        <label for="state">State / Province (optional)</label>
-        <select id="state">
-          <option value="">--</option>
-          <option value="WA" selected>WA</option>
-          <option value="OR">OR</option>
-          <option value="CA">CA</option>
-          <option value="ID">ID</option>
-        </select>
-
-        <label for="phone">Phone (optional)</label>
-        <input id="phone" placeholder="(###) ###-####" autocomplete="tel" />
-
-        <button id="payBtn" class="btn">Pay</button>
-        <div id="err" class="error"></div>
-
-        <div class="fine">
-          This button routes to <code>/api/create-checkout-session</code> and then redirects to Stripe Checkout.
-        </div>
-      </div>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lot #88 - Event Parking</title>
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    body { font-family: -apple-system, system-ui, Segoe UI, Roboto, Arial, sans-serif; margin: 0; background:#f5f5f5; }
+    .card { max-width: 720px; margin: 20px auto; background: #fff; border-radius: 14px; overflow: hidden; box-shadow: 0 6px 24px rgba(0,0,0,.08); }
+    .heroimg { height: 180px; background: #ddd; }
+    .heroimg img { width: 100%; height: 100%; object-fit: cover; display:block; }
+    .hero { padding: 16px; border-bottom: 1px solid #eee; }
+    .title { font-size: 22px; font-weight: 800; margin: 0; }
+    .sub { margin: 6px 0 0; color: #555; }
+    .section { padding: 16px; }
+    label { display:block; font-weight: 700; margin: 14px 0 6px; }
+    input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; }
+    .ratebox { display:flex; justify-content:space-between; align-items:center; border:2px solid #2d6cdf; border-radius: 12px; padding: 14px; }
+    .ratebox b { font-size: 18px; }
+    .error { color:#b00020; font-weight:700; margin-top: 10px; }
+    .btn { width:100%; padding: 14px; font-size: 18px; border: 0; border-radius: 12px; background:#2d6cdf; color:#fff; font-weight: 800; cursor:pointer; margin-top: 16px; }
+    .btn:disabled { opacity: .6; cursor:not-allowed; }
+    .divider { margin: 14px 0; border-top: 1px solid #eee; }
+    #express { margin-top: 14px; }
+    #payment-element { margin-top: 14px; }
+    .fine { color:#666; font-size: 13px; margin-top: 10px; line-height: 1.35; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <!-- TOP PICTURE -->
+    <div class="heroimg">
+      <!-- Replace this URL with your real top image -->
+      <img src="https://images.unsplash.com/photo-1508973378895-1a1b2330c2a4?auto=format&fit=crop&w=1400&q=60" alt="Lot photo">
     </div>
 
-    <script>
-      const payBtn = document.getElementById("payBtn");
-      const errEl = document.getElementById("err");
+    <div class="hero">
+      <p class="sub" style="margin:0;">U-Park System (Seattle)</p>
+      <h1 class="title">Lot #88</h1>
+      <p class="sub">120 5th Ave S, Seattle, WA</p>
+    </div>
 
-      function cleanPlate(v) {
-        return (v || "").trim().toUpperCase();
+    <div class="section">
+      <h2 style="margin:0 0 10px;">Confirm your rate</h2>
+      <div class="ratebox">
+        <div>
+          <b>Event</b><div style="color:#666;">Flat rate for event parking</div>
+        </div>
+        <div style="font-size:22px; font-weight:900;">$60.00</div>
+      </div>
+
+      <label for="plate">License plate number (required)</label>
+      <input id="plate" placeholder="ABC1234" autocomplete="off" />
+
+      <label for="state">State / Province (optional)</label>
+      <select id="state">
+        <option value="">--</option>
+        <option value="WA" selected>WA</option>
+        <option value="OR">OR</option>
+        <option value="CA">CA</option>
+        <option value="ID">ID</option>
+      </select>
+
+      <label for="phone">Phone (optional)</label>
+      <input id="phone" placeholder="(###) ###-####" autocomplete="tel" />
+
+      <div class="divider"></div>
+
+      <!-- Stripe Express Checkout (Apple Pay / Google Pay) -->
+      <div id="express"></div>
+
+      <!-- Stripe Payment Element (Card, etc.) -->
+      <form id="payment-form">
+        <div id="payment-element"></div>
+        <button id="submit" class="btn">Pay</button>
+        <div id="error-message" class="error"></div>
+      </form>
+
+      <div class="fine">
+        Apple Pay / Google Pay show here when the device/browser supports them and your Stripe account is eligible.
+        Card entry is always available.
+      </div>
+    </div>
+  </div>
+
+<script>
+  // IMPORTANT: put your Stripe *publishable* key here (pk_live... or pk_test...)
+  const STRIPE_PUBLISHABLE_KEY = "REPLACE_WITH_YOUR_PK_KEY";
+
+  const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
+
+  const plateEl = document.getElementById("plate");
+  const stateEl = document.getElementById("state");
+  const phoneEl = document.getElementById("phone");
+
+  const form = document.getElementById("payment-form");
+  const submitBtn = document.getElementById("submit");
+  const errorEl = document.getElementById("error-message");
+
+  function cleanPlate(v) { return (v || "").trim().toUpperCase(); }
+
+  async function createIntent() {
+    const licensePlate = cleanPlate(plateEl.value);
+    const state = (stateEl.value || "").trim().toUpperCase();
+    const phone = (phoneEl.value || "").trim();
+
+    if (!licensePlate) throw new Error("Please enter a license plate number.");
+
+    const res = await fetch("/api/create-payment-intent", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        lotNumber: "88",
+        lotAddress: "120 5th Ave S, Seattle, WA",
+        rateType: "event",
+        amountCents: 6000,
+        licensePlate,
+        state,
+        phone
+      })
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data?.error || "Failed to start payment.");
+    if (!data?.clientSecret) throw new Error("Missing clientSecret from server.");
+    return data.clientSecret;
+  }
+
+  let elements;
+
+  async function bootStripeUI() {
+    try {
+      const clientSecret = await createIntent();
+
+      elements = stripe.elements({ clientSecret });
+
+      // Express checkout buttons (Apple Pay / Google Pay)
+      const expressCheckout = elements.create("expressCheckout");
+      expressCheckout.mount("#express");
+
+      // Regular card + other methods
+      const paymentElement = elements.create("payment");
+      paymentElement.mount("#payment-element");
+
+    } catch (e) {
+      errorEl.textContent = e.message || "Could not load payment UI.";
+    }
+  }
+
+  // Because your plate is required, we wait until they type it, then load Stripe UI.
+  // This avoids creating PaymentIntents with blank plate.
+  let booted = false;
+  plateEl.addEventListener("input", async () => {
+    if (booted) return;
+    if (cleanPlate(plateEl.value).length >= 2) { // small threshold so it doesn't spam
+      booted = true;
+      await bootStripeUI();
+    }
+  });
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errorEl.textContent = "";
+
+    if (!elements) {
+      errorEl.textContent = "Enter your license plate first.";
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Processing...";
+
+    const { error } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: window.location.origin + "/success.html"
       }
+    });
 
-      payBtn.addEventListener("click", async () => {
-        errEl.textContent = "";
-
-        const plate = cleanPlate(document.getElementById("plate").value);
-        const state = (document.getElementById("state").value || "").trim().toUpperCase();
-        const phone = (document.getElementById("phone").value || "").trim();
-
-        if (!plate) {
-          errEl.textContent = "Please enter a license plate number.";
-          return;
-        }
-
-        payBtn.disabled = true;
-        payBtn.textContent = "Starting checkout...";
-
-        try {
-          const res = await fetch("/api/create-checkout-session", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              lotNumber: "88",
-              lotAddress: "120 5th Ave S, Seattle, WA",
-              rateType: "event",
-              amountCents: 6000,
-              licensePlate: plate,
-              state,
-              phone
-            })
-          });
-
-          const data = await res.json().catch(() => ({}));
-
-          if (!res.ok) {
-            throw new Error(data?.error || "Checkout failed.");
-          }
-
-          if (!data?.url || typeof data.url !== "string") {
-            throw new Error("Server did not return a valid Stripe Checkout URL.");
-          }
-
-          window.location.href = data.url;
-        } catch (e) {
-          errEl.textContent = e.message || "Something went wrong.";
-          payBtn.disabled = false;
-          payBtn.textContent = "Pay";
-        }
-      });
-    </script>
-  </body>
+    if (error) {
+      errorEl.textContent = error.message || "Payment failed.";
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Pay";
+    }
+  });
+</script>
+</body>
 </html>
